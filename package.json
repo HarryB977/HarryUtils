@@ -1,0 +1,27 @@
+{
+    "name": "com.harryb97.harryutils",
+    "version": "1.0.0",
+    "displayName": "HarryUtils",
+    "description": "",
+    "unity": "6000.0",
+    
+    "keywords":
+    [
+        "tools"
+    ],
+
+    "author": 
+    {
+        "name": "HarryB97",
+        "email": "36953173+HarryB977@users.noreply.github.com"
+    },
+    "hideInEditor": true,
+
+    "repository": 
+    {
+        "type": "git",
+        "url": "https://github.com/RazgriZ77/HarryUtils.git"
+    },
+
+    "license": "ISC"
+}
