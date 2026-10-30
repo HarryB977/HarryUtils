@@ -6,23 +6,25 @@ namespace HarryUtils.Timer {
         // ==================== VARIABLES ===================
         #region Public Variables
         public bool Finished { get; private set; } = false;
+
         public float ElapsedTime { get; private set; } = 0f;
+        public float Duration { get; private set; } = 0f;
+
+        public bool IsInverted { get; private set; } = false;
         #endregion
         
         #region Private Variables
-        protected float duration = 0f;
-        protected bool inverted = false;
-
         protected Action callback;
         #endregion
         
         // ==================== METHODS ====================
         public Timer(float _duration, Action _callback = null, bool _inverted = false) {
-            ElapsedTime = _inverted ? _duration : 0f;
-
-            duration = _inverted ? 0 : _duration;
-            inverted = _inverted;
             Finished = false;
+
+            ElapsedTime = _inverted ? _duration : 0f;
+            Duration = _inverted ? 0 : _duration;
+
+            IsInverted = _inverted;
 
             callback = _callback;
         }
@@ -35,13 +37,13 @@ namespace HarryUtils.Timer {
         public void Ticks() {
             if (Finished) return;
             
-            if (inverted) Regressive();
+            if (IsInverted) Regressive();
             else Progressive();
 
             void Progressive() {
-                if (duration > ElapsedTime) ElapsedTime += Time.deltaTime;
+                if (Duration > ElapsedTime) ElapsedTime += Time.deltaTime;
                 else {
-                    ElapsedTime = duration;
+                    ElapsedTime = Duration;
                     Finished = true;
 
                     callback?.Invoke();
@@ -57,6 +59,14 @@ namespace HarryUtils.Timer {
                     callback?.Invoke();
                 }
             }
+        }
+
+        public void AddDuration(float _duration) {
+            Duration += _duration;
+        }
+
+        public void TakeDuration(float _duration) {
+            Duration -= _duration;
         }
     }
 }
