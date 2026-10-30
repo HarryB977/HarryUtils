@@ -2,7 +2,7 @@
     "name": "HarryUtils.ObjectPool.Sample",
     "rootNamespace": "",
     "references": [
-        "HarryUtils"
+        "GUID:3cbd4dbbdd8d22542bf927dec8fe2000"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
