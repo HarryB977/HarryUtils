@@ -1,10 +1,8 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -277,26 +275,6 @@ namespace HarryUtils {
             } catch (Exception _exception) {
                 Debug.LogError($"Error al deserializar: {_exception.Message}");
             }
-        }
-
-        /// <summary> Serializa un objeto y lo transforma en un array de bytes </summary>
-        public static byte[] SerializeToBytes(this object _object) {
-            BinaryFormatter _binaryFormatter = new();
-            using MemoryStream _memoryStream = new();
-
-            _binaryFormatter.Serialize(_memoryStream, _object);
-            return _memoryStream.ToArray();
-        }
-
-        /// <summary> Deserializa un array de bytes y lo transforma en un objeto </summary>
-        public static object DeserializeBytes(this byte[] _bytes) {
-            BinaryFormatter _binaryFormatter = new();
-            using MemoryStream _memoryStream = new();
-
-            _memoryStream.Write(_bytes, 0, _bytes.Length);
-            _memoryStream.Seek(0, SeekOrigin.Begin);
-
-            return _binaryFormatter.Deserialize(_memoryStream);
         }
         #endregion
 

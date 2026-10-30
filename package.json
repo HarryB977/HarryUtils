@@ -1,8 +1,8 @@
 {
     "name": "com.harryb97.harryutils",
-    "version": "1.3.2",
+    "version": "2.0.0",
     "displayName": "HarryUtils",
-    "description": "",
+    "description": "Utilidades que uso en mis proyectos de Unity: extensiones, singletons, temporizadores, pools de objetos, máquina de estados y componentes de UI",
     "unity": "6000.0",
     
     "dependencies":
@@ -39,5 +39,5 @@
         }
     ],
 
-    "license": "ISC"
+    "license": "MIT"
 }

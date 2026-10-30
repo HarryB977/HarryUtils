@@ -1,5 +1,23 @@
 # Change Log:
 
+## 2.0.0
+
+### Cambios incompatibles
+
+    - Se han eliminado 'SerializeToBytes' y 'DeserializeBytes'. Usaban 'BinaryFormatter', que es inseguro al deserializar datos externos y ya no existe en .NET 9
+
+### Cambios
+
+    - El ejemplo de ObjectPool pasa a ser un Sample importable desde el Package Manager ('Samples~/ObjectPool'). Antes sus scripts y prefabs se importaban en todos los proyectos
+    - Los Assembly Definitions de Editor y del Sample ahora referencian por GUID en vez de por nombre
+    - Licencia MIT, con su archivo LICENSE
+
+### Fixes
+
+    - Se declaran las dependencias que ya usaba el código: 'com.unity.mathematics', 'com.unity.nuget.newtonsoft-json' y 'com.unity.ugui'
+    - El icono de 'NonDrawingGraphic' tenía el mismo GUID que el del paquete 'extensions.unity.nondrawinggraphic', lo que provocaba un conflicto de GUID al tener ambos instalados
+    - Eliminado un .meta huérfano de una carpeta vacía ('Runtime/PopupField')
+
 ## 1.3.2
 
     - Se ha editado 'Timer' para exponer más variables y poder sumar o restar duración al temporizador
