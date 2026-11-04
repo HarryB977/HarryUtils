@@ -1,43 +1,32 @@
 {
     "name": "com.harryb97.harryutils",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "displayName": "HarryUtils",
     "description": "Utilidades que uso en mis proyectos de Unity: extensiones, singletons, temporizadores, pools de objetos, máquina de estados y componentes de UI",
     "unity": "6000.0",
-    
-    "dependencies":
-    {
+    "dependencies": {
         "com.unity.mathematics": "1.3.3",
         "com.unity.nuget.newtonsoft-json": "3.2.2",
         "com.unity.ugui": "2.0.0"
     },
-    
-    "keywords":
-    [
+    "keywords": [
         "tools"
     ],
-
-    "author": 
-    {
+    "author": {
         "name": "HarryB97",
-        "email": "36953173+HarryB977@users.noreply.github.com"
+        "url": "https://github.com/HarryB977"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/HarryB977/HarryUtils.git"
     },
     "hideInEditor": true,
-
-    "repository": 
-    {
-        "type": "git",
-        "url": "https://github.com/RazgriZ77/HarryUtils.git"
-    },
-
-    "samples":
-    [
+    "samples": [
         {
             "displayName": "Object Pool Sample",
             "description": "Ejemplo de uso de ObjectPool: un spawner que dispara balas reutilizadas",
             "path": "Samples~/ObjectPool"
         }
     ],
-
     "license": "MIT"
 }

@@ -1,5 +1,12 @@
 # Change Log:
 
+## 2.0.1
+
+    - Publicado en OpenUPM: se instala con `openupm add com.harryb97.harryutils` y el Package Manager avisa de las actualizaciones
+    - `package.json`: `repository` apunta a HarryB977/HarryUtils y el autor ya no incluye email
+    - LICENSE: el titular pasa a ser HarryB97
+    - README: instalación desde OpenUPM
+
 ## 2.0.0
 
 ### Cambios incompatibles
