@@ -8,6 +8,7 @@ namespace HarryUtils.ObjectPool {
         private sealed class Entry {
             public bool isActive;
             public IPoolable[] poolables;
+            public LinkedListNode<T> node;
         }
 
         // ==================== VARIABLES ===================
@@ -18,7 +19,7 @@ namespace HarryUtils.ObjectPool {
         private readonly Transform parent;
 
         private readonly Stack<T> free = new();
-        private readonly List<T> active = new();
+        private readonly LinkedList<T> active = new();
         private readonly Dictionary<T, Entry> entries = new();
         #endregion
 
@@ -31,7 +32,9 @@ namespace HarryUtils.ObjectPool {
         public int CountActive => active.Count;
         public int CountInactive => free.Count;
         public int CountAll => entries.Count;
-        public IReadOnlyList<T> Active => active;
+        // Oldest to newest.
+        public IReadOnlyCollection<T> Active => active;
+        public T Oldest => PeekOldestActive();
         #endregion
 
         // ==================== START ====================
@@ -54,6 +57,8 @@ namespace HarryUtils.ObjectPool {
             T _item = PopFree();
 
             if (_item == null) {
+                if (IsFull() && overflow == PoolOverflow.Fail) PurgeDestroyedActive();
+
                 if (IsFull()) {
                     if (overflow == PoolOverflow.Fail) return null;
 
@@ -69,7 +74,7 @@ namespace HarryUtils.ObjectPool {
 
             Entry _entry = entries[_item];
             _entry.isActive = true;
-            active.Add(_item);
+            _entry.node = active.AddLast(_item);
 
             _item.gameObject.SetActive(true);
             Got?.Invoke(_item);
@@ -80,7 +85,11 @@ namespace HarryUtils.ObjectPool {
 
         public bool Release(T _item) {
             if (_item == null) {
-                Debug.LogWarning("[Pool] Cannot release a null or destroyed object.");
+                if (!ReferenceEquals(_item, null) && entries.TryGetValue(_item, out Entry _dead)) {
+                    DropEntry(_item, _dead);
+                    return false;
+                }
+                Debug.LogWarning("[Pool] Cannot release a null or foreign destroyed object.");
                 return false;
             }
 
@@ -95,7 +104,8 @@ namespace HarryUtils.ObjectPool {
             }
 
             _entry.isActive = false;
-            active.Remove(_item);
+            active.Remove(_entry.node);
+            _entry.node = null;
 
             for (int i = 0; i < _entry.poolables.Length; i++) _entry.poolables[i].OnReleaseToPool();
             Released?.Invoke(_item);
@@ -114,11 +124,10 @@ namespace HarryUtils.ObjectPool {
         }
 
         public void ReleaseAll() {
-            for (int i = active.Count - 1; i >= 0; i--) {
-                T _item = active[i];
+            while (active.Count > 0) {
+                T _item = active.Last.Value;
                 if (_item == null) {
-                    active.RemoveAt(i);
-                    entries.Remove(_item);
+                    DropEntry(_item, entries[_item]);
                     continue;
                 }
                 Release(_item);
@@ -135,11 +144,7 @@ namespace HarryUtils.ObjectPool {
 
         public void Dispose() {
             Clear();
-            for (int i = active.Count - 1; i >= 0; i--) {
-                T _item = active[i];
-                entries.Remove(_item);
-                DestroyInstance(_item);
-            }
+            foreach (T _item in active) DestroyInstance(_item);
             active.Clear();
             entries.Clear();
         }
@@ -163,12 +168,28 @@ namespace HarryUtils.ObjectPool {
         // Drops destroyed instances at the front so the oldest live one is returned.
         private T PeekOldestActive() {
             while (active.Count > 0) {
-                T _item = active[0];
+                T _item = active.First.Value;
                 if (_item != null) return _item;
-                active.RemoveAt(0);
-                entries.Remove(_item);
+                DropEntry(_item, entries[_item]);
             }
             return null;
+        }
+
+        private void PurgeDestroyedActive() {
+            LinkedListNode<T> _node = active.First;
+            while (_node != null) {
+                LinkedListNode<T> _next = _node.Next;
+                if (_node.Value == null) DropEntry(_node.Value, entries[_node.Value]);
+                _node = _next;
+            }
+        }
+
+        private void DropEntry(T _item, Entry _entry) {
+            if (_entry.node != null) {
+                active.Remove(_entry.node);
+                _entry.node = null;
+            }
+            entries.Remove(_item);
         }
 
         private T CreateInstance() {

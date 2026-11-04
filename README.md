@@ -28,7 +28,7 @@ pool.Release(bullet);         // lo desactiva y lo devuelve; false (con aviso) s
 
 - **Eventos:** `Created`, `Got`, `Released` y `Destroyed`.
 - **`IPoolable`:** los componentes del objeto que lo implementen reciben `OnGetFromPool` y `OnReleaseToPool`.
-- **Políticas** (`PoolOverflow`) cuando se alcanza `_maxSize` (0 = sin límite): `Grow` crea más e ignora el máximo, `ReuseOldest` libera y entrega de nuevo el objeto activo más antiguo (`Active[0]`) y `Fail` no entrega nada.
+- **Políticas** (`PoolOverflow`) cuando se alcanza `_maxSize` (0 = sin límite): `Grow` crea más e ignora el máximo, `ReuseOldest` libera y entrega de nuevo el objeto activo más antiguo (`Oldest`; `Active` se enumera del más antiguo al más nuevo) y `Fail` no entrega nada.
 - Otros miembros: `TryGet`, `Prewarm`, `ReleaseAll`, `Clear` (destruye las inactivas), `Dispose` (destruye todas) y los contadores `CountActive`, `CountInactive` y `CountAll`.
 
 `ObjectPool<T>` y `LimitedObjectPool<T>` siguen disponibles.

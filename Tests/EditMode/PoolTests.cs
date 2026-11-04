@@ -116,8 +116,8 @@ namespace HarryUtils.Tests {
             Assert.AreSame(_a, _c);
             Assert.AreEqual(1, _released);
             Assert.AreEqual(2, pool.Active.Count);
-            Assert.AreSame(_b, pool.Active[0]);
-            Assert.AreSame(_a, pool.Active[1]);
+            CollectionAssert.AreEqual(new[] { _b, _a }, pool.Active);
+            Assert.AreSame(_b, pool.Oldest);
         }
 
         [Test]
@@ -129,6 +129,43 @@ namespace HarryUtils.Tests {
             Assert.IsFalse(pool.TryGet(out var _second));
             Assert.IsTrue(_second == null);
             Assert.IsTrue(pool.Get() == null);
+        }
+
+        [Test]
+        public void Fail_ReleaseThenGet_Succeeds() {
+            pool = new Pool<TestPoolable>(prefab, 0, 1, PoolOverflow.Fail);
+            Assert.IsTrue(pool.TryGet(out var _first));
+            Assert.IsFalse(pool.TryGet(out _));
+
+            Assert.IsTrue(pool.Release(_first));
+
+            Assert.IsTrue(pool.TryGet(out var _again));
+            Assert.AreSame(_first, _again);
+        }
+
+        [Test]
+        public void Release_DestroyedActive_FreesCapacity() {
+            pool = new Pool<TestPoolable>(prefab, 0, 1, PoolOverflow.Fail);
+            var _item = pool.Get();
+            Object.DestroyImmediate(_item.gameObject);
+
+            Assert.IsFalse(pool.Release(_item));
+
+            Assert.AreEqual(0, pool.CountActive);
+            Assert.IsTrue(pool.TryGet(out var _next));
+            Assert.IsTrue(_next != null);
+            Assert.AreEqual(1, pool.CountAll);
+        }
+
+        [Test]
+        public void Get_FullFailPool_WithDestroyedActive_Recovers() {
+            pool = new Pool<TestPoolable>(prefab, 0, 1, PoolOverflow.Fail);
+            var _item = pool.Get();
+            Object.DestroyImmediate(_item.gameObject);
+
+            Assert.IsTrue(pool.TryGet(out var _next));
+            Assert.IsTrue(_next != null);
+            Assert.AreEqual(1, pool.CountAll);
         }
 
         [Test]
