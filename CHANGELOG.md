@@ -1,5 +1,14 @@
 # Change Log:
 
+## 2.1.0
+
+    - Nuevo 'Pool<T>' (namespace 'HarryUtils.ObjectPool'): pool de componentes con 'Get', 'TryGet' y 'Release' en O(1) para el caso habitual, eventos 'Created', 'Got', 'Released' y 'Destroyed', e interfaz 'IPoolable' (OnGetFromPool / OnReleaseToPool)
+    - Políticas al llegar al máximo ('PoolOverflow'): 'Grow', 'ReuseOldest' y 'Fail'
+    - 'Release' avisa y devuelve 'false' si el objeto no es de la pool o ya estaba liberado; 'Get' descarta las instancias destruidas desde fuera
+    - 'ObjectPool<T>' y 'LimitedObjectPool<T>' siguen disponibles sin cambios
+    - El Sample de ObjectPool usa 'Pool<T>' con 'ReuseOldest'
+    - Tests de EditMode para las pools
+
 ## 2.0.1
 
     - Publicado en OpenUPM: se instala con `openupm add com.harryb97.harryutils` y el Package Manager avisa de las actualizaciones

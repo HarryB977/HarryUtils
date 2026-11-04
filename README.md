@@ -16,6 +16,23 @@ También se puede instalar por URL de git con la etiqueta de la versión:
 "com.harryb97.harryutils": "https://github.com/HarryB977/HarryUtils.git#2.0.1"
 ```
 
+## Pools de objetos
+`Pool<T>` (namespace `HarryUtils.ObjectPool`) reutiliza componentes en vez de instanciarlos y destruirlos.
+
+```csharp
+var pool = new Pool<Bullet>(bulletPrefab, _prewarm: 10, _maxSize: 20, _overflow: PoolOverflow.ReuseOldest);
+
+Bullet bullet = pool.Get();   // activa el objeto; null si la política es Fail y la pool está llena
+pool.Release(bullet);         // lo desactiva y lo devuelve; false (con aviso) si no es de la pool o ya estaba liberado
+```
+
+- **Eventos:** `Created`, `Got`, `Released` y `Destroyed`.
+- **`IPoolable`:** los componentes del objeto que lo implementen reciben `OnGetFromPool` y `OnReleaseToPool`.
+- **Políticas** (`PoolOverflow`) cuando se alcanza `_maxSize` (0 = sin límite): `Grow` crea más e ignora el máximo, `ReuseOldest` libera y entrega de nuevo el objeto activo más antiguo (`Active[0]`) y `Fail` no entrega nada.
+- Otros miembros: `TryGet`, `Prewarm`, `ReleaseAll`, `Clear` (destruye las inactivas), `Dispose` (destruye todas) y los contadores `CountActive`, `CountInactive` y `CountAll`.
+
+`ObjectPool<T>` y `LimitedObjectPool<T>` siguen disponibles.
+
 ## Editar el paquete desde un proyecto
 1. En el manifest del proyecto, apuntar el paquete a la copia local del repositorio:
    `"com.harryb97.harryutils": "file:<ruta-local>/HarryUtils"`

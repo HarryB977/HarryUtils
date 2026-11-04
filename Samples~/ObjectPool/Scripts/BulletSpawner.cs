@@ -15,12 +15,12 @@ namespace HarryUtils.ObjectPool.Sample {
         [Header("References")]
         [SerializeField] private Bullet bulletPrefab = null;
 
-        private LimitedObjectPool<Bullet> bulletsPool;
+        private Pool<Bullet> bulletsPool;
         #endregion
         
         // ==================== START ====================
         private void Start() {
-            bulletsPool = new(bulletPrefab, maxBullets / 2, maxBullets);
+            bulletsPool = new(bulletPrefab, maxBullets / 2, maxBullets, PoolOverflow.ReuseOldest);
             StartCoroutine(StartShoot());
         }
         
@@ -35,14 +35,14 @@ namespace HarryUtils.ObjectPool.Sample {
         }
 
         private void CreateBullet() {
-            bulletsPool.GetObject()
+            bulletsPool.Get()
                 .SetDelegate(this)
                 .Shoot(transform, bulletSpeed, bulletLifetime);
         }
 
         // ==================== INTERFACES ====================
         void Bullet.IProtocol.OnStop(Bullet _bullet) {
-            bulletsPool.ReleaseObject(_bullet);
+            bulletsPool.Release(_bullet);
         }
     }
 }

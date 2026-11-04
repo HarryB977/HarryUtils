@@ -28,6 +28,7 @@ namespace HarryUtils.ObjectPool.Sample {
             transform.forward = _point.forward;
             
             speed = _speed;
+            CancelInvoke(nameof(Stop));
             Invoke(nameof(Stop), _lifeTime);
 
             return this;
