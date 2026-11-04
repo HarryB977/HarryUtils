@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using HarryUtils.ObjectPool;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.TestTools;
 
 namespace HarryUtils.Tests {
@@ -42,16 +43,37 @@ namespace HarryUtils.Tests {
             Assert.AreEqual(0, pool.CountActive);
         }
 
+        // GC.GetAllocatedBytesForCurrentThread returns 0 on Unity Mono, so the profiler recorder is used instead
+        private static int CountGcAllocBlocks(System.Action _action) {
+            Recorder _recorder = Recorder.Get("GC.Alloc");
+            _recorder.FilterToCurrentThread();
+            _recorder.enabled = true;
+            _action();
+            _recorder.enabled = false;
+            return _recorder.sampleBlockCount;
+        }
+
+        [Test]
+        public void AllocationProbe_DetectsAllocation() {
+            object _sink = null;
+            int _blocks = CountGcAllocBlocks(() => {
+                for (int i = 0; i < 100; i++) _sink = new object();
+            });
+
+            Assert.Greater(_blocks, 0);
+            Assert.IsNotNull(_sink);
+        }
+
         [Test]
         public void Get_SteadyState_DoesNotAllocate() {
             pool = new Pool<TestPoolable>(prefab, 4);
             for (int i = 0; i < 10; i++) pool.Release(pool.Get());
 
-            long _before = System.GC.GetAllocatedBytesForCurrentThread();
-            for (int i = 0; i < 100; i++) pool.Release(pool.Get());
-            long _after = System.GC.GetAllocatedBytesForCurrentThread();
+            int _blocks = CountGcAllocBlocks(() => {
+                for (int i = 0; i < 100; i++) pool.Release(pool.Get());
+            });
 
-            Assert.AreEqual(0, _after - _before);
+            Assert.AreEqual(0, _blocks);
         }
 
         [Test]
