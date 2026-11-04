@@ -23,10 +23,10 @@ También se puede instalar por URL de git con la etiqueta de la versión:
 var pool = new Pool<Bullet>(bulletPrefab, _prewarm: 10, _maxSize: 20, _overflow: PoolOverflow.ReuseOldest);
 
 Bullet bullet = pool.Get();   // activa el objeto; null si la política es Fail y la pool está llena
-pool.Release(bullet);         // lo desactiva y lo devuelve; false (con aviso) si no es de la pool o ya estaba liberado
+pool.Release(bullet);         // lo desactiva y lo devuelve; false (con aviso) si no es de la pool o ya estaba liberado; false sin aviso si la instancia activa fue destruida desde fuera
 ```
 
-- **Eventos:** `Created`, `Got`, `Released` y `Destroyed`.
+- **Eventos:** `Created`, `Got`, `Released` y `Destroyed`. Las instancias del prewarm del constructor disparan `Created` antes de que nadie pueda suscribirse: si lo necesitas, crea la pool sin prewarm, suscríbete y llama a `Prewarm(n)`.
 - **`IPoolable`:** los componentes del objeto que lo implementen reciben `OnGetFromPool` y `OnReleaseToPool`.
 - **Políticas** (`PoolOverflow`) cuando se alcanza `_maxSize` (0 = sin límite): `Grow` crea más e ignora el máximo, `ReuseOldest` libera y entrega de nuevo el objeto activo más antiguo (`Oldest`; `Active` se enumera del más antiguo al más nuevo) y `Fail` no entrega nada.
 - Otros miembros: `TryGet`, `Prewarm`, `ReleaseAll`, `Clear` (destruye las inactivas), `Dispose` (destruye todas) y los contadores `CountActive`, `CountInactive` y `CountAll`.

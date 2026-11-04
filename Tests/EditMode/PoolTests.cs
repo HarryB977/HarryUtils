@@ -43,6 +43,38 @@ namespace HarryUtils.Tests {
         }
 
         [Test]
+        public void Get_SteadyState_DoesNotAllocate() {
+            pool = new Pool<TestPoolable>(prefab, 4);
+            for (int i = 0; i < 10; i++) pool.Release(pool.Get());
+
+            long _before = System.GC.GetAllocatedBytesForCurrentThread();
+            for (int i = 0; i < 100; i++) pool.Release(pool.Get());
+            long _after = System.GC.GetAllocatedBytesForCurrentThread();
+
+            Assert.AreEqual(0, _after - _before);
+        }
+
+        [Test]
+        public void Release_CallbackThrows_InstanceStillReusable() {
+            pool = new Pool<TestPoolable>(prefab, 1);
+            bool _throw = true;
+            pool.Released += _ => {
+                if (!_throw) return;
+                _throw = false;
+                throw new System.InvalidOperationException("boom");
+            };
+
+            var _item = pool.Get();
+            Assert.Throws<System.InvalidOperationException>(() => pool.Release(_item));
+
+            Assert.AreEqual(0, pool.CountActive);
+            Assert.AreEqual(1, pool.CountInactive);
+            Assert.AreEqual(1, pool.CountAll);
+            Assert.IsNotNull(pool.Get());
+            Assert.AreEqual(1, pool.CountAll);
+        }
+
+        [Test]
         public void Get_ActivatesAndCallsCallbacks() {
             pool = new Pool<TestPoolable>(prefab);
             int _got = 0;

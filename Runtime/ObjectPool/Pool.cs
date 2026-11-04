@@ -74,7 +74,7 @@ namespace HarryUtils.ObjectPool {
 
             Entry _entry = entries[_item];
             _entry.isActive = true;
-            _entry.node = active.AddLast(_item);
+            active.AddLast(_entry.node);
 
             _item.gameObject.SetActive(true);
             Got?.Invoke(_item);
@@ -103,15 +103,14 @@ namespace HarryUtils.ObjectPool {
                 return false;
             }
 
+            // Bookkeeping first: a throwing callback must not leave the instance lost
             _entry.isActive = false;
             active.Remove(_entry.node);
-            _entry.node = null;
+            free.Push(_item);
 
             for (int i = 0; i < _entry.poolables.Length; i++) _entry.poolables[i].OnReleaseToPool();
             Released?.Invoke(_item);
             _item.gameObject.SetActive(false);
-
-            free.Push(_item);
             return true;
         }
 
@@ -185,16 +184,16 @@ namespace HarryUtils.ObjectPool {
         }
 
         private void DropEntry(T _item, Entry _entry) {
-            if (_entry.node != null) {
+            if (_entry.isActive) {
                 active.Remove(_entry.node);
-                _entry.node = null;
+                _entry.isActive = false;
             }
             entries.Remove(_item);
         }
 
         private T CreateInstance() {
             T _item = Object.Instantiate(prefab, parent);
-            entries[_item] = new Entry { poolables = _item.GetComponents<IPoolable>() };
+            entries[_item] = new Entry { poolables = _item.GetComponents<IPoolable>(), node = new LinkedListNode<T>(_item) };
             Created?.Invoke(_item);
             _item.gameObject.SetActive(false);
             return _item;
